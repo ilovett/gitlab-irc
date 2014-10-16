@@ -3,13 +3,32 @@ require 'googl'
 
 class MessageFormatter
   def self.messages(json)
+    p json
+    data = MultiJson.load(json)
+    if data['object_kind']
+      if data['object_kind'] == "issue"
+        return self.parse_issue(data)
+      end
+    else
+      return self.parse_commit(data)
+    end
+  end
+
+  def self.parse_issue(data)
     msgs = []
-    info = MultiJson.load(json)
-    branch = info['ref'].split('/').last
-    info['commits'].each do |ci|
-      url = self.short_url(ci['url'])
+    msg = "Issue \##{data['object_attributes']['iid']} (#{data['object_attributes']['state']}) \"#{data['object_attributes']['title']}\" has been updated."
+    msgs << msg
+    return msgs
+  end
+
+  def self.parse_commit(data)
+    msgs = []
+    branch = data['ref'].split('/').last
+    data['commits'].each do |ci|
+      # url = self.short_url(ci['url'])
+      url = ci['url']
       ci_title = ci['message'].lines.first.chomp
-      msg = "[#{info['repository']['name'].capitalize}(#{branch})] #{ci['author']['name']} | #{ci_title} | #{url}"
+      msg = "#{data['repository']['name']} (#{branch}) | #{ci_title} | #{ci['author']['name']} | #{url}"
       msgs << msg
     end
     return msgs
@@ -18,4 +37,5 @@ class MessageFormatter
   def self.short_url(url)
     Googl.shorten(url).short_url
   end
+
 end
