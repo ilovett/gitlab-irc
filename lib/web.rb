@@ -10,7 +10,8 @@ set :bind, config['web']['bind']
 
 post '/commit' do
   redis = Redis.new(:host => config['redis']['host'], :port => config['redis']['port'])
-  messages = MessageFormatter.messages(request.body.read)
+  json = request.body.read
+  messages = MessageFormatter.messages(json)
   messages.each { |msg| redis.rpush("#{config['redis']['namespace']}:messages", msg) }
   redis.quit
 end
