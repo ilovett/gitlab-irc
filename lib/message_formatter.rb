@@ -25,10 +25,12 @@ class MessageFormatter
     msgs = []
     branch = data['ref'].split('/').last
     data['commits'].each do |ci|
-      # url = self.short_url(ci['url'])
-      url = ci['url']
+      url = self.short_url(ci['url'])
+      # url = ci['url']
+      author = ci['author']['name']
       ci_title = ci['message'].lines.first.chomp
-      msg = "#{data['repository']['name']} (#{branch}) | #{ci_title} | #{ci['author']['name']} | #{url}"
+      msg = "#{data['repository']['name']} (#{branch}) | #{url} | #{ci_title}"
+      # msg = "#{data['repository']['name']} (#{branch}) | #{ci_title} | #{ci['author']['name']} | #{url}"
       msgs << msg
     end
     return msgs
